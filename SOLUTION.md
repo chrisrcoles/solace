@@ -9,25 +9,26 @@
 3. Consider both frontend and backend performance improvements. Assume we have a database of hundreds of thousands of advocates we need to search through.
 
 ## Frontend Fixes
-1. Missing `key` prop in list rendering 
-2. Direct DOM manipulation in `page.tsx`. 
+[X] Missing `key` prop in list rendering 
+[X] Direct DOM manipulation in `page.tsx`. 
 - Bug: Code uses document.getElementById("search-term").innerHTML = searchTerm; inside the onChange handler.
-3. Table <th> Elements Not Inside <tr>
+[X] Table <th> Elements Not Inside <tr>
 - Bug: In your table, <th> elements are direct children of <thead>, but they should be inside a <tr>.
-4. No Error Handling for Fetch
+[X] No Error Handling for Fetch
 Bug: The fetch call in useEffect does not handle errors (e.g., network failure, non-200 responses).
-5. No Loading State
+[X] No Loading State
 Bug: There is no loading indicator while data is being fetched.
-6. Potential Type Issues
+[X] Potential Type Issues
 Bug: The code assumes all advocate fields exist and are strings/arrays, but there is no type checking or fallback.
-7. Case-Sensitive Search
+[X] Case-Sensitive Search
 Bug: The search is case-sensitive (includes), so searching for "john" won't match "John".
-8. Reset Search Button
+[X] Reset Search Button
 Bug: The reset button resets the filtered list but does not clear the input field or the "Searching for" display.
-9. No Unique Key for Table Rows
+[X] No Unique Key for Table Rows
 Bug: Each <tr> in the table should have a unique key prop, ideally something like advocate.id.
 10. Break up into different components.
-11. Separate UI logic from data-fetching and state management. 
+[X] Separate UI logic from data-fetching and state management. 
+[] Add types
 
 
 ## Backend Fixes
@@ -49,3 +50,5 @@ The fallback to use static advocateData is commented out, which is fine for prod
 
 ## Extras
 1. Docker improvements
+2. Pagination
+3. Update versioning

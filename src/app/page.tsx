@@ -1,20 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SearchBar from "@/app/components/SearchBar";
+import SearchStatus from "@/app/components/SearchStatus";
+import AdvocatesTable from "@/app/components/AdvocatesTable";
+import { Advocate } from "@/app/types";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [advocates, setAdvocates] = useState<Advocate[]>([]);
+  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("fetching advocates...");
-    const fetchAdvocates = async () => {
+    const fetchAdvocates = async (): Promise<void> => {
       try {
         const response = await fetch("/api/advocates");
-        const data = await response.json();
+        type ApiResponse = { data: Advocate[] };
+
+        const data: ApiResponse = await response.json();
         setAdvocates(data.data);
         setFilteredAdvocates(data.data);
       } catch (error) {
@@ -26,14 +32,14 @@ export default function Home() {
     fetchAdvocates();
   }, []);
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = e.target.value;
     console.log("searchTerm", searchTerm);
     setSearchTerm(searchTerm);
 
     console.log("filtering advocates...");
 
-    const checkSpecialties = (specialties) => {
+    const checkSpecialties = (specialties: string[]) => {
       return specialties.some((specialty) =>
         specialty.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -66,79 +72,25 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Solace Advocates</h1>
 
         {/* Search Bar */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-8 flex flex-col sm:flex-row items-center gap-4">
-          <div className="flex-1 w-full">
-            <label className="block text-gray-700 font-medium mb-1">Search</label>
-            <input
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={searchTerm}
-              onChange={onChange}
-              placeholder="Search by name, city, specialty, etc."
-            />
-          </div>
-          <button
-            className="mt-2 sm:mt-0 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-            onClick={onResetSearchClick}
-          >
-            Reset Search
-          </button>
-        </div>
-
+        <SearchBar
+          searchTerm={searchTerm}
+          onChange={onChange}
+          onClick={onResetSearchClick}
+        />
+        
         {/* Searching for */}
-        <div className="mb-4 text-gray-600">
-          {searchTerm && (
-            <span>
-              <span className="font-semibold">Searching for:</span> {searchTerm}
-            </span>
-          )}
-        </div>
+        <SearchStatus searchTerm={searchTerm} />
 
-        {/* Error and Loading */}
+        {/* Error */}
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
         )}
-        {loading && (
+        {/* Loading and Table */}
+        {loading ? (
           <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded">Loading advocates...</div>
+        ) : (   
+          <AdvocatesTable advocates={filteredAdvocates} />
         )}
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead className="bg-blue-600 text-white">
-              <tr>
-                <th className="py-3 px-4 text-left font-semibold">First Name</th>
-                <th className="py-3 px-4 text-left font-semibold">Last Name</th>
-                <th className="py-3 px-4 text-left font-semibold">City</th>
-                <th className="py-3 px-4 text-left font-semibold">Degree</th>
-                <th className="py-3 px-4 text-left font-semibold">Specialties</th>
-                <th className="py-3 px-4 text-left font-semibold">Experience</th>
-                <th className="py-3 px-4 text-left font-semibold">Phone Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAdvocates.map((advocate, idx) => (
-                <tr
-                  key={advocate.id || idx}
-                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                >
-                  <td className="py-2 px-4">{advocate.firstName}</td>
-                  <td className="py-2 px-4">{advocate.lastName}</td>
-                  <td className="py-2 px-4">{advocate.city}</td>
-                  <td className="py-2 px-4">{advocate.degree}</td>
-                  <td className="py-2 px-4">
-                    <ul className="list-disc list-inside space-y-1">
-                      {advocate.specialties.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="py-2 px-4 text-center">{advocate.yearsOfExperience}</td>
-                  <td className="py-2 px-4">{advocate.phoneNumber}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
     </main>
   );
