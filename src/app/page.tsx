@@ -54,59 +54,92 @@ export default function Home() {
     setFilteredAdvocates(filteredAdvocates);
   };
 
-  const onClick = () => {
+  const onResetSearchClick = () => {
     console.log(advocates);
     setFilteredAdvocates(advocates);
     setSearchTerm("");
   };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term">{searchTerm}</span>
-        </p>
-        <input value={searchTerm} style={{ border: "1px solid black" }} onChange={onChange}></input>
-        <button onClick={onClick}>Reset Search</button>
-      </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>City</th>
-            <th>Degree</th>
-            <th>Specialties</th>
-            <th>Experience</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate, i) => {
-            return (
-              <tr key={advocate.id}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s, i) => (
-                    <div key={i}>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
+      <div className="w-full max-w-4xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Solace Advocates</h1>
+
+        {/* Search Bar */}
+        <div className="bg-white shadow-md rounded-lg p-6 mb-8 flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-1 w-full">
+            <label className="block text-gray-700 font-medium mb-1">Search</label>
+            <input
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={searchTerm}
+              onChange={onChange}
+              placeholder="Search by name, city, specialty, etc."
+            />
+          </div>
+          <button
+            className="mt-2 sm:mt-0 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+            onClick={onResetSearchClick}
+          >
+            Reset Search
+          </button>
+        </div>
+
+        {/* Searching for */}
+        <div className="mb-4 text-gray-600">
+          {searchTerm && (
+            <span>
+              <span className="font-semibold">Searching for:</span> {searchTerm}
+            </span>
+          )}
+        </div>
+
+        {/* Error and Loading */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+        )}
+        {loading && (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded">Loading advocates...</div>
+        )}
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-blue-600 text-white">
+              <tr>
+                <th className="py-3 px-4 text-left font-semibold">First Name</th>
+                <th className="py-3 px-4 text-left font-semibold">Last Name</th>
+                <th className="py-3 px-4 text-left font-semibold">City</th>
+                <th className="py-3 px-4 text-left font-semibold">Degree</th>
+                <th className="py-3 px-4 text-left font-semibold">Specialties</th>
+                <th className="py-3 px-4 text-left font-semibold">Experience</th>
+                <th className="py-3 px-4 text-left font-semibold">Phone Number</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {filteredAdvocates.map((advocate, idx) => (
+                <tr
+                  key={advocate.id || idx}
+                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
+                  <td className="py-2 px-4">{advocate.firstName}</td>
+                  <td className="py-2 px-4">{advocate.lastName}</td>
+                  <td className="py-2 px-4">{advocate.city}</td>
+                  <td className="py-2 px-4">{advocate.degree}</td>
+                  <td className="py-2 px-4">
+                    <ul className="list-disc list-inside space-y-1">
+                      {advocate.specialties.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td className="py-2 px-4 text-center">{advocate.yearsOfExperience}</td>
+                  <td className="py-2 px-4">{advocate.phoneNumber}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
   );
 }
