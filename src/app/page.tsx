@@ -32,13 +32,21 @@ export default function Home() {
     setSearchTerm(searchTerm);
 
     console.log("filtering advocates...");
+
+    const checkSpecialties = (specialties) => {
+      return specialties.some((specialty) =>
+        specialty.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    };
+
     const filteredAdvocates = advocates.filter((advocate) => {
+      console.log("advocate", advocate.specialties);
       return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
+        advocate.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        advocate.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        advocate.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        advocate.degree.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        checkSpecialties(advocate.specialties) ||
         advocate.yearsOfExperience.toString().includes(searchTerm)
       );
     });
@@ -49,6 +57,7 @@ export default function Home() {
   const onClick = () => {
     console.log(advocates);
     setFilteredAdvocates(advocates);
+    setSearchTerm("");
   };
 
   return (
@@ -61,7 +70,7 @@ export default function Home() {
         <p>
           Searching for: <span id="search-term">{searchTerm}</span>
         </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
+        <input value={searchTerm} style={{ border: "1px solid black" }} onChange={onChange}></input>
         <button onClick={onClick}>Reset Search</button>
       </div>
       <br />
@@ -74,6 +83,8 @@ export default function Home() {
             <th>City</th>
             <th>Degree</th>
             <th>Specialties</th>
+            <th>Experience</th>
+            <th>Phone Number</th>
           </tr>
         </thead>
         <tbody>
