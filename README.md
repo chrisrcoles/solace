@@ -1,4 +1,10 @@
+## Solace Candidate Solution Outline
+
+See [solution outline here](https://github.com/chrisrcoles/solace/blob/main/SOLUTION.md)
+
 ## Solace Candidate Assignment
+
+See [directions here](https://github.com/chrisrcoles/solace/blob/main/ASSIGNMENT.md)
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

@@ -1,19 +1,15 @@
 import db from "../../../db";
 import { advocates } from "../../../db/schema";
 import { advocateData } from "../../../db/seed/advocates";
-
+import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const data = await db.select().from(advocates);
-    return Response.json({ data }, { status: 200 });
+    return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
-    // Optionally log the error for debugging
     console.error("Failed to fetch advocates:", error);
-
-    // Return a JSON error response with a 500 status code
-    return Response.json(
-      { error: "Failed to fetch advocates. Please try again later." },
-      { status: 500 }
-    );
+    console.error("DB error, falling back to static data:", error);
+    // Fallback to static data
+    return NextResponse.json({ data: advocateData, fallback: true }, { status: 200 });
   }
 }

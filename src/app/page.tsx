@@ -46,7 +46,7 @@ export default function Home() {
     };
 
     const filteredAdvocates = advocates.filter((advocate) => {
-      console.log("advocate", advocate.specialties);
+      // console.log("advocate", advocate.specialties);
       return (
         advocate.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         advocate.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
