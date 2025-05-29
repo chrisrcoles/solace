@@ -17,14 +17,18 @@ export default function Home() {
     console.log("fetching advocates...");
     const fetchAdvocates = async (): Promise<void> => {
       try {
-        const response = await fetch("/api/advocates");
+        const response = await fetch(`/api/advocates`);
         type ApiResponse = { data: Advocate[] };
 
         const data: ApiResponse = await response.json();
         setAdvocates(data.data);
         setFilteredAdvocates(data.data);
-      } catch (error) {
-        setError(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('An unknown error occurred');
+        }
       } finally {
         setLoading(false);
       }
@@ -32,32 +36,22 @@ export default function Home() {
     fetchAdvocates();
   }, []);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = e.target.value;
     console.log("searchTerm", searchTerm);
     setSearchTerm(searchTerm);
 
-    console.log("filtering advocates...");
-
-    const checkSpecialties = (specialties: string[]) => {
-      return specialties.some((specialty) =>
-        specialty.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    };
-
-    const filteredAdvocates = advocates.filter((advocate) => {
-      // console.log("advocate", advocate.specialties);
-      return (
-        advocate.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        advocate.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        advocate.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        advocate.degree.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        checkSpecialties(advocate.specialties) ||
-        advocate.yearsOfExperience.toString().includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
+    try {
+      const response = await fetch(`/api/advocates?query=${searchTerm}`);
+      const data = await response.json();
+      setFilteredAdvocates(data.data);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    }
   };
 
   const onResetSearchClick = () => {

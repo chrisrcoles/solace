@@ -66,7 +66,7 @@ state management.
 4. Database indexing
 5. Caching
 6. Infinite Scroll
-7. API Tests
+7. Frontend/Backedn Tests - Unit, Integration, E2E
 8. Lazy Loading
 9. Authentication and Authorization
 10. CI/CD pipeline + deployed app
