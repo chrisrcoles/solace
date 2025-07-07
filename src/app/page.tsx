@@ -1,91 +1,91 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SearchBar from "@/app/components/SearchBar";
+import SearchStatus from "@/app/components/SearchStatus";
+import AdvocatesTable from "@/app/components/AdvocatesTable";
+import { Advocate } from "@/app/types";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [advocates, setAdvocates] = useState<Advocate[]>([]);
+  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
-    });
+    const fetchAdvocates = async (): Promise<void> => {
+      try {
+        const response = await fetch(`/api/advocates`);
+        type ApiResponse = { data: Advocate[] };
+
+        const data: ApiResponse = await response.json();
+        setAdvocates(data.data);
+        setFilteredAdvocates(data.data);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdvocates();
   }, []);
 
-  const onChange = (e) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = e.target.value;
+    console.log("searchTerm", searchTerm);
+    setSearchTerm(searchTerm);
 
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
+    try {
+      const response = await fetch(`/api/advocates?query=${searchTerm}`);
+      const data = await response.json();
+      setFilteredAdvocates(data.data);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    }
   };
 
-  const onClick = () => {
+  const onResetSearchClick = () => {
     console.log(advocates);
     setFilteredAdvocates(advocates);
+    setSearchTerm("");
   };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
+      <div className="w-full max-w-4xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Solace Advocates</h1>
+
+        {/* Search Bar */}
+        <SearchBar
+          searchTerm={searchTerm}
+          onChange={onChange}
+          onClick={onResetSearchClick}
+        />
+        
+        {/* Searching for */}
+        <SearchStatus searchTerm={searchTerm} />
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+        )}
+        {/* Loading and Table */}
+        {loading ? (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded">Loading advocates...</div>
+        ) : (   
+          <AdvocatesTable advocates={filteredAdvocates} />
+        )}
       </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>City</th>
-          <th>Degree</th>
-          <th>Specialties</th>
-          <th>Years of Experience</th>
-          <th>Phone Number</th>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </main>
   );
 }
